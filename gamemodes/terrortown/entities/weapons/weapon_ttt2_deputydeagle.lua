@@ -9,6 +9,10 @@ SWEP.HoldType = "revolver"
 SWEP.AutoSwitchTo = false
 SWEP.AutoSwitchFrom = false
 
+CreateConVar("ttt2_dep_kill_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+CreateConVar("ttt2_dep_kill_logic_team", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+CreateConVar("ttt2_dep_custom_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+
 if SERVER then
 	AddCSLuaFile()
 
@@ -19,10 +23,6 @@ if SERVER then
 	util.AddNetworkString("tttDeputyRefillCDReduced")
 	util.AddNetworkString("tttDeputyDeagleRefilled")
 	util.AddNetworkString("tttDeputyDeagleMiss")
-
-	CreateConVar("ttt2_dep_kill_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
-	CreateConVar("ttt2_dep_kill_logic_team", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
-	CreateConVar("ttt2_dep_custom_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 else
 	hook.Add("Initialize", "TTTInitSikiDeagleLang", function()
 		LANG.AddToLanguage("English", "ttt2_weapon_deputydeagle_desc", "Shoot a player to make him your deputy.")
