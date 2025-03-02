@@ -4,6 +4,8 @@ if SERVER then
 	resource.AddFile("materials/vgui/ttt/dynamic/roles/icon_dep.vmt")
 
 	CreateConVar("ttt2_dep_protection_time", 1, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+	CreateConVar("ttt2_dep_shared_killer", 1, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+	CreateConVar("ttt2_dep_shared_death", 1, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 end
 
 local plymeta = FindMetaTable("Player")
@@ -38,16 +40,16 @@ function ROLE:Initialize()
 end
 
 function plymeta:IsDeputy()
-	return IsValid(self:GetNWEntity("binded_deputy", nil))
+	return IsValid(self:GetNWEntity("bound_deputy", nil))
 end
 
 function plymeta:GetDeputyMate()
-	local data = self:GetNWEntity("binded_deputy", nil)
+	local data = self:GetNWEntity("bound_deputy", nil)
 
 	return IsValid(data) and data or nil
 end
 
-function plymeta:GetDeputys()
+function plymeta:GetDeputies()
 	local tmp = {}
 
 	for _, v in ipairs(player.GetAll()) do
@@ -72,7 +74,7 @@ if SERVER then
 	function AddDeputy(target, attacker)
 		if target:IsDeputy() or attacker:IsDeputy() then return end
 
-		target:SetNWEntity("binded_deputy", attacker)
+		target:SetNWEntity("bound_deputy", attacker)
 		target:SetRole(ROLE_DEPUTY)
 
 		local credits = target:GetCredits()
@@ -120,30 +122,35 @@ if SERVER then
 		if discPly:IsDeputy() then
 			deps = {discPly}
 		else
-			deps = discPly:GetDeputys()
+			deps = discPly:GetDeputies()
 		end
 
 		if not deps then return end
 
 		for _, dep in ipairs(deps) do
 			if IsValid(dep) and dep:IsPlayer() and dep:IsActive() then
-				dep:SetNWEntity("binded_deputy", nil)
+				dep:SetNWEntity("bound_deputy", nil)
 				dep:TakeDamage(99999, game.GetWorld())
 			end
 		end
 	end)
 
-	hook.Add("PostPlayerDeath", "PlayerDeathChangeDep", function(ply)
-		local deps = ply:GetDeputys()
-		if not deps then return end
+	hook.Add("TTT2PostPlayerDeath", "PlayerDeathChangeDep", function(victim, inflictor, attacker)
+		local deps = victim:GetDeputies()
+		if not GetConVar("ttt2_dep_shared_death"):GetBool() or not deps then return end
 
 		for _, dep in ipairs(deps) do
 			if IsValid(dep) and dep:IsActive() then
-				dep:SetNWEntity("binded_deputy", nil)
-				dep:TakeDamage(99999, game.GetWorld())
+				dep:SetNWEntity("bound_deputy", nil)
+				-- Set the killer of the deputy as the same that killed the sheriff
+				if GetConVar("ttt2_dep_shared_killer"):GetBool() and attacker:IsPlayer() then
+					dep:TakeDamage(99999, attacker)
+				else
+					dep:TakeDamage(99999, game.GetWorld())
+				end
 
-				if #deps == 1 then -- a player can just be binded with one player as deputy
-					ply.spawn_as_deputy = dep
+				if #deps == 1 then -- a player can just be bound with one player as deputy
+					victim.spawn_as_deputy = dep
 				end
 			end
 		end
@@ -170,28 +177,17 @@ if CLIENT then
 			decimal = 0
 		})
 
-		local enbRefill = form:MakeCheckBox({
-			serverConvar = "ttt2_dep_deagle_refill",
-			label = "label_dep_deagle_refill"
+		local enbShare = form:MakeCheckBox({
+			serverConvar = "ttt2_dep_shared_death",
+			label = "label_dep_shared_death"
 		})
 
-		form:MakeSlider({
-			serverConvar = "ttt2_dep_deagle_refill_cd",
-			label = "label_dep_deagle_refill_cd",
-			min = 1,
-			max = 300,
-			decimal = 0,
-			master = enbRefill
+		form:MakeCheckBox({
+			serverConvar = "ttt2_dep_shared_killer",
+			label = "label_ttt2_dep_shared_killer",
+			master = enbShare
 		})
 
-		form:MakeSlider({
-			serverConvar = "ttt2_dep_deagle_refill_cd_per_kill",
-			label = "label_dep_deagle_refill_cd_per_kill",
-			min = 1,
-			max = 300,
-			decimal = 0,
-			master = enbRefill
-		})
 	end
 
 	net.Receive("TTT2HealDeputy", function()
@@ -204,7 +200,7 @@ hook.Add("TTTPrepareRound", "DepPrepareRound", function()
 		ply.spawn_as_deputy = nil
 
 		if SERVER then
-			ply:SetNWEntity("binded_deputy", nil)
+			ply:SetNWEntity("bound_deputy", nil)
 		end
 	end
 end)

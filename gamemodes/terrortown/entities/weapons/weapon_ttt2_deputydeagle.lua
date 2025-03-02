@@ -19,6 +19,10 @@ if SERVER then
 	util.AddNetworkString("tttDeputyRefillCDReduced")
 	util.AddNetworkString("tttDeputyDeagleRefilled")
 	util.AddNetworkString("tttDeputyDeagleMiss")
+
+	CreateConVar("ttt2_dep_kill_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+	CreateConVar("ttt2_dep_kill_logic_team", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
+	CreateConVar("ttt2_dep_custom_logic", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 else
 	hook.Add("Initialize", "TTTInitSikiDeagleLang", function()
 		LANG.AddToLanguage("English", "ttt2_weapon_deputydeagle_desc", "Shoot a player to make him your deputy.")
@@ -39,6 +43,88 @@ else
 		type = "Weapon",
 		desc = "ttt2_weapon_deputydeagle_desc"
 	}
+
+	function SWEP:AddToSettingsMenu(parent)
+		local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
+		local translate = LANG.TryTranslation
+
+
+		local enbRefill = form:MakeCheckBox({
+			serverConvar = "ttt2_dep_deagle_refill",
+			label = "label_dep_deagle_refill"
+		})
+
+		form:MakeSlider({
+			serverConvar = "ttt2_dep_deagle_refill_cd",
+			label = "label_dep_deagle_refill_cd",
+			min = 1,
+			max = 300,
+			decimal = 0,
+			master = enbRefill
+		})
+
+		form:MakeSlider({
+			serverConvar = "ttt2_dep_deagle_refill_cd_per_kill",
+			label = "label_dep_deagle_refill_cd_per_kill",
+			min = 1,
+			max = 300,
+			decimal = 0,
+			master = enbRefill
+		})
+
+		local customLogicToggle = form:MakeCheckBox({
+			serverConvar = "ttt2_dep_custom_logic",
+			label = "label_ttt2_dep_custom_logic"
+		})
+
+
+		local logicChoices = {
+			translate("label_ttt2_dep_kill_logic_traitor"),
+			translate("label_ttt2_dep_kill_logic_self"),
+			translate("label_ttt2_dep_kill_logic_skip"),
+		}
+
+		local logicForm = form:MakeComboBox({
+			label = "label_ttt2_dep_kill_logic",
+			choices = logicChoices,
+			selectName = logicChoices[GetConVar("ttt2_dep_kill_logic"):GetInt() + 1],
+			OnChange = function(value)
+			  local index = -1
+			  for i,choice in pairs(logicChoices) do
+				if choice == value then index = i end
+			  end
+
+			  if (index == -1) then return end
+
+			  index = index - 1 -- switch from lua 1-based indexing to cvar range 
+			  cvars.ChangeServerConVar("ttt2_dep_kill_logic", index)
+			end,
+			master = customLogicToggle
+		})
+
+		local teamChoices = {
+			translate("label_ttt2_dep_kill_team_traitor"),
+			translate("label_ttt2_dep_kill_team_evil")
+		}
+
+		form:MakeComboBox({
+			label = "label_ttt2_dep_kill_logic_team",
+			choices = teamChoices,
+			selectName = teamChoices[GetConVar("ttt2_dep_kill_logic_team"):GetInt() + 1],
+			OnChange = function(value)
+			  local index = -1
+			  for i,choice in pairs(teamChoices) do
+				if choice == value then index = i end
+			  end
+
+			  if (index == -1) then return end
+
+			  index = index - 1 -- switch from lua 1-based indexing to cvar range 
+			  cvars.ChangeServerConVar("ttt2_dep_kill_logic_team", index)
+			end,
+			master = customLogicToggle
+		})
+	end
 end
 
 -- dmg
@@ -116,6 +202,30 @@ local function DeputyDeagleCallback(attacker, tr, dmg)
 	if IsValid(deagle) then
 		deagle:Remove()
 	end
+
+	if GetConVar("ttt2_dep_custom_logic"):GetBool()
+		and
+		(
+			-- if we are matching traitors
+			(GetConVar("ttt2_dep_kill_logic_team"):GetInt() == 0 and target:GetTeam() == TEAM_TRAITOR)
+			or
+			-- if we are matching any evil team
+			(GetConVar("ttt2_dep_kill_logic_team"):GetInt() == 1 and target:HasEvilTeam())
+		)
+		then
+			-- if the target should die
+			if GetConVar("ttt2_dep_kill_logic"):GetInt() == 0 then
+				target:TakeDamage(9999, attacker)
+				return true
+			-- if the attacker should die
+			elseif GetConVar("ttt2_dep_kill_logic"):GetInt() == 1 then
+				attacker:TakeDamage(9999, attacker)
+				return true
+			-- If the Deputy Deagle shouldn't do anything
+			elseif GetConVar("ttt2_dep_kill_logic"):GetInt() == 2 then return true end
+	end
+
+
 
 	AddDeputy(target, attacker)
 
