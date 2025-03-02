@@ -84,7 +84,7 @@ else
 			translate("label_ttt2_dep_kill_logic_skip"),
 		}
 
-		local logicForm = form:MakeComboBox({
+		form:MakeComboBox({
 			label = "label_ttt2_dep_kill_logic",
 			choices = logicChoices,
 			selectName = logicChoices[GetConVar("ttt2_dep_kill_logic"):GetInt() + 1],
