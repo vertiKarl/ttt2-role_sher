@@ -31,3 +31,6 @@ L["label_ttt2_dep_kill_logic_self"] = "Der Schütze stirbt."
 L["label_ttt2_dep_kill_logic_team"] = "Das Team das die Logik auslöst"
 L["label_ttt2_dep_kill_team_traitor"] = "Traitor"
 L["label_ttt2_dep_kill_team_evil"] = "Jedes böse Team"
+
+L["ttt2_weapon_deputydeagle_name"] = "Hilfsscheriffspistole"
+L["ttt2_weapon_deputydeagle_desc"] = "Schieße auf einen Spieler, um ihn zu deinem Deputy zu machen."

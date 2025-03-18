@@ -31,3 +31,6 @@ L["label_ttt2_dep_kill_logic_self"] = "The Attacker dies."
 L["label_ttt2_dep_kill_logic_team"] = "The team that triggers this logic"
 L["label_ttt2_dep_kill_team_traitor"] = "Traitor"
 L["label_ttt2_dep_kill_team_evil"] = "Any evil team"
+
+L["ttt2_weapon_deputydeagle_name"] = "Deputy Deagle"
+L["ttt2_weapon_deputydeagle_desc"] = "Shoot a player to make him your deputy."
