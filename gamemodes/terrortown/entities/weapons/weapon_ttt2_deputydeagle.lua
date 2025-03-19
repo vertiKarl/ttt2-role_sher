@@ -64,13 +64,18 @@ else
             min = 1,
             max = 300,
             decimal = 0,
-            master = enbRefill,
-        })
+            master = enbRefill,	
+		})
 
-        local customLogicToggle = form:MakeCheckBox({
-            serverConvar = "ttt2_dep_custom_logic",
+		local customLogicToggle = form:MakeCheckBox({
+			serverConvar = "ttt2_dep_custom_logic",
             label = "label_ttt2_dep_custom_logic",
         })
+		
+		form:MakeHelp({
+			label = "label_ttt2_dep_custom_logic_help",
+            master = customLogicToggle,
+		})
 
         local logicChoices = {
             TryT("label_ttt2_dep_kill_logic_traitor"),
