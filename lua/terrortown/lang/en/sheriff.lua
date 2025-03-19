@@ -25,9 +25,9 @@ L["label_ttt2_dep_shared_killer"] = "Should the killer be the same of dep and sh
 L["label_ttt2_dep_custom_logic"] = "Should custom logic be used?"
 L["label_ttt2_dep_custom_logic_help"] = [[Enable this if you want to override the default behavior.
 (Default: Everyone shot with the deputy deagle converts to a deputy no matter what.)
+
 This allows you to change what happens when you shoot another player depending on which team they are on.
-A possible example: you shoot a traitor with the deputy deagle → you die.
-]]
+A possible example: you shoot a traitor with the deputy deagle → you die.]]
 L["label_ttt2_dep_kill_logic"] = "What happens"
 L["label_ttt2_dep_kill_logic_deputy"] = "They become a deputy"
 L["label_ttt2_dep_kill_logic_skip"] = "Nothing (not converting)"
