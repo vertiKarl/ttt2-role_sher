@@ -30,8 +30,7 @@ Dies erlaubt dir einzustellen was passiert, wenn ein Spieler eines bestimmten Te
 mit der Hilfsscheriffspistole abgeschossen wird.
 
 Ein mögliches Beispiel:
-Du schießt einen Traitor mit der Hilfsscheriffspistole ab → er stirbt.
-]]
+Du schießt einen Traitor mit der Hilfsscheriffspistole ab → er stirbt.]]
 L["label_ttt2_dep_kill_logic"] = "Was passiertt"
 L["label_ttt2_dep_kill_logic_deputy"] = "Er wird zum Deputy"
 L["label_ttt2_dep_kill_logic_skip"] = "Nichts (Nicht konvertiert)"
